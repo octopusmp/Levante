@@ -38,38 +38,51 @@
 .le-filter select, .le-filter input { border-radius:8px; }
 /* Cover */
 .le-cover { width:100%; max-height:480px; object-fit:cover; }
-/* ── GALLERY ─────────────────────────────────────────────────── */
-.le-gall-wrap { border-radius:12px; overflow:hidden; background:#111; }
-.le-gall-main { position:relative; background:#111; }
-.le-gall-main img { width:100%; height:420px; object-fit:contain; display:block; }
-.le-gall-arrow { position:absolute; top:50%; transform:translateY(-50%);
+/* ── Inline Gallery ───────────────────────────────────────── */
+.le-gall-wrap    { border-radius:12px; overflow:hidden; background:#111; }
+.le-gall-main    { position:relative; background:#111; }
+.le-gall-main img { width:100%; height:420px; object-fit:contain; display:block; cursor:zoom-in; }
+.le-gall-arrow   { position:absolute; top:50%; transform:translateY(-50%);
     background:rgba(0,0,0,.55); color:#fff; border:none; border-radius:50%;
-    width:44px; height:44px; font-size:22px; line-height:1; cursor:pointer;
-    z-index:10; display:flex; align-items:center; justify-content:center;
-    transition:background .15s; }
+    width:44px; height:44px; font-size:24px; cursor:pointer; z-index:10;
+    display:flex; align-items:center; justify-content:center; transition:background .15s; }
 .le-gall-arrow:hover { background:rgba(0,0,0,.85); }
 .le-gall-prev { left:12px; }
 .le-gall-next { right:12px; }
-.le-thumbs { display:flex; gap:6px; overflow-x:auto; padding:8px;
-    background:#1a1a1a; scrollbar-width:thin; scrollbar-color:#444 #1a1a1a; }
+.le-thumbs { display:flex; gap:6px; overflow-x:auto; padding:8px; background:#1a1a1a;
+    scrollbar-width:thin; scrollbar-color:#444 #1a1a1a; }
 .le-thumbs::-webkit-scrollbar { height:4px; }
 .le-thumbs::-webkit-scrollbar-thumb { background:#555; border-radius:2px; }
-.le-thumb { width:88px; height:60px; object-fit:cover; border-radius:5px;
-    cursor:pointer; flex-shrink:0; opacity:.5; transition:opacity .15s, border-color .15s;
+.le-thumb { width:88px; height:60px; object-fit:cover; border-radius:5px; cursor:pointer;
+    flex-shrink:0; opacity:.5; transition:opacity .15s, border-color .15s;
     border:2px solid transparent; }
-.le-thumb:hover { opacity:.8; }
+.le-thumb:hover  { opacity:.8; }
 .le-thumb.le-active { opacity:1; border-color:var(--le-accent); }
-/* ── Map / Video ─────────────────────────────────────────────── */
+/* ── Fullscreen Lightbox ──────────────────────────────────── */
+#leLightbox { display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+    z-index:9999; background:rgba(0,0,0,.96); flex-direction:column; }
+#leLbClose { position:fixed; top:14px; right:18px; z-index:10001;
+    background:rgba(255,255,255,.12); border:none; color:#fff; font-size:1.4rem;
+    width:46px; height:46px; border-radius:50%; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition:background .15s; }
+#leLbClose:hover { background:rgba(255,255,255,.28); }
+#leLbMain { flex:1; display:flex; align-items:center; justify-content:center;
+    position:relative; overflow:hidden; }
+#leLbImg  { max-width:92%; max-height:calc(100vh - 136px); object-fit:contain;
+    pointer-events:none; user-select:none; display:block; }
+#leLbThumbs { display:flex; gap:6px; padding:8px 16px; overflow-x:auto; flex-shrink:0;
+    background:rgba(0,0,0,.7); min-height:80px; align-items:center;
+    scrollbar-width:thin; scrollbar-color:#555 transparent; }
+#leLbThumbs::-webkit-scrollbar { height:4px; }
+#leLbThumbs::-webkit-scrollbar-thumb { background:#555; border-radius:2px; }
+/* ── Map / Video ──────────────────────────────────────────── */
 .le-ratio-16-9 { position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:12px; }
 .le-ratio-16-9 iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:0; }
 /* Agent */
 .le-agent { background:var(--le-light); border-radius:12px; padding:24px; }
-/* Price */
 .le-price { font-size:2rem; font-weight:700; color:var(--le-accent); }
-/* Buttons */
 .btn-le { background:var(--le-accent); color:#fff; font-weight:600; border-radius:8px; padding:.55em 1.4em; }
 .btn-le:hover { background:#b8943e; color:#fff; }
-/* Sold overlay */
 .le-sold-overlay { position:relative; }
 .le-sold-overlay::after { content:"SOLD"; position:absolute; top:50%; left:50%;
     transform:translate(-50%,-50%) rotate(-20deg);
@@ -146,9 +159,7 @@
                                     <img t-attf-src="/web/image/estate.property/#{prop.id}/cover_image"
                                          class="le-card-img" t-att-alt="prop.name"/>
                                 </t>
-                                <t t-else="">
-                                    <div class="le-card-img-placeholder">🏠</div>
-                                </t>
+                                <t t-else=""><div class="le-card-img-placeholder">&#127968;</div></t>
                                 <div class="p-3">
                                     <div class="d-flex gap-2 mb-2 flex-wrap">
                                         <span class="le-badge le-badge-type"><t t-esc="prop._type_label()"/></span>
@@ -156,24 +167,18 @@
                                     </div>
                                     <h6 class="fw-semibold mb-1 lh-sm"><t t-esc="prop.name"/></h6>
                                     <t t-if="prop.address">
-                                        <small class="text-muted d-block mb-2">📍 <t t-esc="prop.address"/></small>
+                                        <small class="text-muted d-block mb-2">&#128205; <t t-esc="prop.address"/></small>
                                     </t>
                                     <div class="le-stats mb-3">
-                                        <t t-if="prop.area_m2">
-                                            <span>📐 <t t-esc="'%.0f' % prop.area_m2"/> m²</span>
-                                        </t>
-                                        <t t-if="prop.bedrooms">
-                                            <span>🛏 <t t-esc="prop.bedrooms"/> bed</span>
-                                        </t>
-                                        <t t-if="prop.bathrooms">
-                                            <span>🚿 <t t-esc="prop.bathrooms"/> bath</span>
-                                        </t>
+                                        <t t-if="prop.area_m2"><span>&#128207; <t t-esc="'%.0f' % prop.area_m2"/> m&#178;</span></t>
+                                        <t t-if="prop.bedrooms"><span>&#128716; <t t-esc="prop.bedrooms"/> bed</span></t>
+                                        <t t-if="prop.bathrooms"><span>&#128703; <t t-esc="prop.bathrooms"/> bath</span></t>
                                     </div>
                                     <div class="d-flex align-items-center justify-content-between">
                                         <span style="color:var(--le-accent);font-weight:700;font-size:1.1rem;">
                                             <t t-esc="prop._format_price()"/>
                                         </span>
-                                        <span class="btn btn-sm btn-le">View Details →</span>
+                                        <span class="btn btn-sm btn-le">View Details &#8594;</span>
                                     </div>
                                 </div>
                             </div>
@@ -201,7 +206,7 @@
         <div class="container my-5">
             <div class="row g-5">
 
-                <!-- Left – main content -->
+                <!-- Left -->
                 <div class="col-12 col-lg-8">
 
                     <div class="d-flex flex-wrap gap-2 mb-2">
@@ -210,21 +215,13 @@
                     </div>
                     <h1 class="fw-bold mb-1" style="color:var(--le-primary)"><t t-esc="prop.name"/></h1>
                     <t t-if="prop.address">
-                        <p class="text-muted mb-3">📍 <t t-esc="prop.address"/></p>
+                        <p class="text-muted mb-3">&#128205; <t t-esc="prop.address"/></p>
                     </t>
-
                     <div class="le-price mb-4"><t t-esc="prop._format_price()"/></div>
-
                     <div class="le-stats fs-6 mb-4 pb-4 border-bottom">
-                        <t t-if="prop.area_m2">
-                            <span>📐 <strong><t t-esc="'%.0f' % prop.area_m2"/></strong> m²</span>
-                        </t>
-                        <t t-if="prop.bedrooms">
-                            <span>🛏 <strong><t t-esc="prop.bedrooms"/></strong> bedrooms</span>
-                        </t>
-                        <t t-if="prop.bathrooms">
-                            <span>🚿 <strong><t t-esc="prop.bathrooms"/></strong> bathrooms</span>
-                        </t>
+                        <t t-if="prop.area_m2"><span>&#128207; <strong><t t-esc="'%.0f' % prop.area_m2"/></strong> m&#178;</span></t>
+                        <t t-if="prop.bedrooms"><span>&#128716; <strong><t t-esc="prop.bedrooms"/></strong> bedrooms</span></t>
+                        <t t-if="prop.bathrooms"><span>&#128703; <strong><t t-esc="prop.bathrooms"/></strong> bathrooms</span></t>
                     </div>
 
                     <t t-if="prop.description">
@@ -236,15 +233,11 @@
                     <t t-if="prop.cover_image or prop.image_ids">
                         <h5 class="fw-semibold mb-3">Photos</h5>
                         <div class="le-gall-wrap mb-5">
-                            <!-- Main viewer -->
                             <div class="le-gall-main">
                                 <img id="leGallMain" src="" alt="Property photo"/>
-                                <button class="le-gall-arrow le-gall-prev" id="lePrev"
-                                        aria-label="Previous">&#8249;</button>
-                                <button class="le-gall-arrow le-gall-next" id="leNext"
-                                        aria-label="Next">&#8250;</button>
+                                <button class="le-gall-arrow le-gall-prev" id="lePrev">&#8249;</button>
+                                <button class="le-gall-arrow le-gall-next" id="leNext">&#8250;</button>
                             </div>
-                            <!-- Thumbnails -->
                             <div class="le-thumbs" id="leThumbs">
                                 <t t-if="prop.cover_image">
                                     <img class="le-thumb"
@@ -265,40 +258,113 @@
 (function(){
     var thumbs  = document.querySelectorAll('.le-thumb');
     var main    = document.getElementById('leGallMain');
-    var prev    = document.getElementById('lePrev');
-    var next    = document.getElementById('leNext');
+    var prevBtn = document.getElementById('lePrev');
+    var nextBtn = document.getElementById('leNext');
     var thumbWr = document.getElementById('leThumbs');
     if(!thumbs.length || !main) return;
     var cur = 0;
+    var lbOpen = false;
 
+    /* ── Inline gallery ─────────────────────────────────── */
     function show(idx){
         cur = ((idx % thumbs.length) + thumbs.length) % thumbs.length;
         main.src = thumbs[cur].getAttribute('data-full');
-        thumbs.forEach(function(t,i){ t.classList.toggle('le-active', i === cur); });
+        thumbs.forEach(function(t,i){ t.classList.toggle('le-active', i===cur); });
         thumbs[cur].scrollIntoView({inline:'nearest', behavior:'smooth', block:'nearest'});
     }
-
-    thumbs.forEach(function(t,i){
-        t.addEventListener('click', function(){ show(i); });
-    });
-
-    if(prev) prev.addEventListener('click', function(){ show(cur - 1); });
-    if(next) next.addEventListener('click', function(){ show(cur + 1); });
-
-    /* Keyboard navigation */
-    document.addEventListener('keydown', function(e){
-        if(e.key === 'ArrowLeft')  show(cur - 1);
-        if(e.key === 'ArrowRight') show(cur + 1);
-    });
-
-    /* Hide arrows and thumb strip when only 1 image */
+    thumbs.forEach(function(t,i){ t.addEventListener('click', function(){ show(i); }); });
+    if(prevBtn) prevBtn.addEventListener('click', function(){ show(cur-1); });
+    if(nextBtn) nextBtn.addEventListener('click', function(){ show(cur+1); });
     if(thumbs.length <= 1){
-        if(prev) prev.style.display = 'none';
-        if(next) next.style.display = 'none';
-        if(thumbWr) thumbWr.style.display = 'none';
+        if(prevBtn) prevBtn.style.display='none';
+        if(nextBtn) nextBtn.style.display='none';
+        if(thumbWr) thumbWr.style.display='none';
+    }
+    show(0);
+
+    /* ── Lightbox ───────────────────────────────────────── */
+    var lb = document.createElement('div');
+    lb.id = 'leLightbox';
+    lb.innerHTML =
+        '<button id="leLbClose" title="Close (Esc)">&#x2715;</button>' +
+        '<div id="leLbMain">' +
+            '<button class="le-gall-arrow le-gall-prev" id="leLbPrev">&#8249;</button>' +
+            '<img id="leLbImg" src="" alt=""/>' +
+            '<button class="le-gall-arrow le-gall-next" id="leLbNext">&#8250;</button>' +
+        '</div>' +
+        '<div id="leLbThumbs"></div>';
+    document.body.appendChild(lb);
+
+    var lbImg = document.getElementById('leLbImg');
+    var lbTW  = document.getElementById('leLbThumbs');
+    var lbLTs = [];
+
+    /* Clone gallery thumbnails into lightbox */
+    thumbs.forEach(function(t, i){
+        var lt = document.createElement('img');
+        lt.className = 'le-thumb';
+        lt.src       = t.src;
+        lt.setAttribute('data-full', t.getAttribute('data-full'));
+        lt.alt       = t.alt;
+        lt.addEventListener('click', function(){ showLb(i); });
+        lbTW.appendChild(lt);
+        lbLTs.push(lt);
+    });
+
+    function showLb(idx){
+        cur = ((idx % thumbs.length) + thumbs.length) % thumbs.length;
+        lbImg.src = thumbs[cur].getAttribute('data-full');
+        lbLTs.forEach(function(t,i){ t.classList.toggle('le-active', i===cur); });
+        if(lbLTs[cur]) lbLTs[cur].scrollIntoView({inline:'nearest', behavior:'smooth', block:'nearest'});
+        /* keep inline gallery in sync */
+        main.src = thumbs[cur].getAttribute('data-full');
+        thumbs.forEach(function(t,i){ t.classList.toggle('le-active', i===cur); });
     }
 
-    show(0);
+    function openLb(){
+        lb.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        lbOpen = true;
+        showLb(cur);
+    }
+    function closeLb(){
+        lb.style.display = 'none';
+        document.body.style.overflow = '';
+        lbOpen = false;
+    }
+
+    /* Open on main image click */
+    main.addEventListener('click', openLb);
+
+    document.getElementById('leLbClose').addEventListener('click', closeLb);
+    document.getElementById('leLbPrev').addEventListener('click', function(){ showLb(cur-1); });
+    document.getElementById('leLbNext').addEventListener('click', function(){ showLb(cur+1); });
+
+    /* Click on dark background to close */
+    lb.addEventListener('click', function(e){
+        if(e.target===lb || e.target.id==='leLbMain') closeLb();
+    });
+
+    /* Keyboard */
+    document.addEventListener('keydown', function(e){
+        if(lbOpen){
+            if(e.key==='ArrowLeft')  showLb(cur-1);
+            if(e.key==='ArrowRight') showLb(cur+1);
+            if(e.key==='Escape')     closeLb();
+        } else {
+            if(e.key==='ArrowLeft')  show(cur-1);
+            if(e.key==='ArrowRight') show(cur+1);
+        }
+    });
+
+    /* Hide lightbox arrows if single image */
+    if(thumbs.length <= 1){
+        var lp = document.getElementById('leLbPrev');
+        var ln = document.getElementById('leLbNext');
+        if(lp) lp.style.display='none';
+        if(ln) ln.style.display='none';
+        lbTW.style.display='none';
+    }
 })();
                         //]]></script>
                     </t>
@@ -310,7 +376,6 @@
                             <iframe t-att-src="map_embed" loading="lazy" allowfullscreen="allowfullscreen"/>
                         </div>
                     </t>
-
                     <t t-if="video_embed">
                         <h5 class="fw-semibold mb-3">Video</h5>
                         <div class="le-ratio-16-9 mb-5">
@@ -322,7 +387,7 @@
 
                 </div>
 
-                <!-- Right – agent card -->
+                <!-- Right – agent -->
                 <div class="col-12 col-lg-4">
                     <div class="sticky-top" style="top:90px">
                         <div class="le-agent">
@@ -330,7 +395,7 @@
                             <t t-if="prop.agent_id">
                                 <div class="d-flex align-items-center gap-3 mb-3">
                                     <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
-                                         style="width:48px;height:48px;font-size:1.3rem;flex-shrink:0">👤</div>
+                                         style="width:48px;height:48px;font-size:1.3rem;flex-shrink:0">&#128100;</div>
                                     <div>
                                         <div class="fw-semibold"><t t-esc="prop.agent_id.name"/></div>
                                         <small class="text-muted">Agent</small>
@@ -338,13 +403,13 @@
                                 </div>
                                 <t t-if="prop.agent_id.phone">
                                     <a t-attf-href="tel:#{prop.agent_id.phone}" class="btn btn-le w-100 mb-2">
-                                        📞 <t t-esc="prop.agent_id.phone"/>
+                                        &#128222; <t t-esc="prop.agent_id.phone"/>
                                     </a>
                                 </t>
                                 <t t-if="prop.agent_id.email">
                                     <a t-attf-href="mailto:#{prop.agent_id.email}"
                                        class="btn btn-outline-secondary w-100 mb-2">
-                                        ✉ <t t-esc="prop.agent_id.email"/>
+                                        &#9993; <t t-esc="prop.agent_id.email"/>
                                     </a>
                                 </t>
                             </t>
