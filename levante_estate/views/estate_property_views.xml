@@ -133,14 +133,6 @@
                 <separator/>
                 <filter string="Yayında" name="published"
                         domain="[('website_published','=',True)]"/>
-                <group expand="0" string="Grupla">
-                    <filter string="Tür" name="group_type"
-                            context="{'group_by':'property_type'}"/>
-                    <filter string="Durum" name="group_state"
-                            context="{'group_by':'state'}"/>
-                    <filter string="Website" name="group_website"
-                            context="{'group_by':'website_id'}"/>
-                </group>
             </search>
         </field>
     </record>
