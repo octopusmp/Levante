@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <menuitem id="estate_root_menu"
+              name="Gayrimenkuller"
+              sequence="50"/>
+
+    <menuitem id="estate_property_menu"
+              name="İlanlar"
+              parent="estate_root_menu"
+              action="estate_property_action"
+              sequence="10"/>
+
+</odoo>
