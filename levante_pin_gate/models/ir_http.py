@@ -1,10 +1,6 @@
 from odoo import models
 from odoo.http import request
 
-# Kod girilmeden de erisilebilmesi gereken yollar:
-# - PIN ekraninin kendisi (sonsuz yonlendirme olmasin diye)
-# - Giris / oturum / sifre yollari (admin girebilsin)
-# - statik dosyalar ve asset paketleri (PIN ekrani ve giris sayfasi bozulmasin)
 WHITELIST_PREFIXES = (
     "/pin",
     "/web/login",
@@ -22,48 +18,46 @@ WHITELIST_PREFIXES = (
 class IrHttp(models.AbstractModel):
     _inherit = "ir.http"
 
-    def _dispatch(self, endpoint):
-        if self._levante_pin_should_block():
+    @classmethod
+    def _dispatch(cls, endpoint):
+        if cls._levante_pin_should_block():
             target = request.httprequest.full_path or "/"
-            # full_path bazen sonuna '?' ekler; temizleyelim
             if target.endswith("?"):
                 target = target[:-1]
             return request.redirect("/pin?redirect=%s" % target)
         return super()._dispatch(endpoint)
 
-    def _levante_pin_should_block(self):
-        # Aktif bir request/oturum yoksa dokunma
-        if not request or not getattr(request, "session", None):
-            return False
+    @classmethod
+    def _levante_pin_should_block(cls):
+        try:
+            if not request or not getattr(request, "session", None):
+                return False
+            if request.session.get("levante_pin_ok"):
+                return False
+            if request.session.uid:
+                return False
 
-        # Bu oturumda kod zaten dogru girilmis
-        if request.session.get("levante_pin_ok"):
-            return False
+            icp = request.env["ir.config_parameter"].sudo()
 
-        # Giris yapmis kullanicilar (admin/portal) kilidi gormez
-        if request.session.uid:
-            return False
+            code = (icp.get_param("levante_pin.code") or "").strip()
+            if not code:
+                return False
 
-        icp = request.env["ir.config_parameter"].sudo()
+            domain = (icp.get_param("levante_pin.domain") or "").strip()
+            if not domain:
+                return False
 
-        # Kod tanimli degilse kilit devre disi (kaza ile herkesi disarida birakmayalim)
-        code = (icp.get_param("levante_pin.code") or "").strip()
-        if not code:
-            return False
+            host = (request.httprequest.host or "").split(":")[0].lower()
+            if domain.lower() not in host:
+                return False
 
-        # Sadece belirtilen domain korunur
-        domain = (icp.get_param("levante_pin.domain") or "").strip()
-        if not domain:
-            return False
-        host = (request.httprequest.host or "").split(":")[0].lower()
-        if domain.lower() not in host:
-            return False
+            path = request.httprequest.path or "/"
+            if path.startswith(WHITELIST_PREFIXES):
+                return False
+            if "/static/" in path:
+                return False
 
-        # Beyaz listedeki yollar serbest
-        path = request.httprequest.path or "/"
-        if path.startswith(WHITELIST_PREFIXES):
+            return True
+        except Exception:
+            # Hata durumunda kilidi devreye alma, erişimi engelleme
             return False
-        if "/static/" in path:
-            return False
-
-        return True
