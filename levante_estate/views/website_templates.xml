@@ -2,80 +2,52 @@
 <odoo>
 
 <!-- ══════════════════════════════════════════════════════════════════
-     PAYLAŞILAN STİL
+     SHARED STYLES
 ══════════════════════════════════════════════════════════════════ -->
 <template id="estate_assets" inherit_id="website.layout">
     <xpath expr="//head" position="inside">
         <style>
-/* Levante Estate – ortak stiller */
 :root {
     --le-primary: #1a3a5c;
     --le-accent:  #c9a84c;
     --le-light:   #f8f5f0;
     --le-muted:   #6c757d;
 }
-
-/* Kart */
 .le-card { border:none; border-radius:12px; overflow:hidden;
            box-shadow:0 2px 12px rgba(0,0,0,.08); transition:transform .2s,box-shadow .2s; }
 .le-card:hover { transform:translateY(-4px); box-shadow:0 8px 28px rgba(0,0,0,.14); }
 .le-card-img { width:100%; height:210px; object-fit:cover; }
 .le-card-img-placeholder { width:100%; height:210px; background:#e9ecef;
     display:flex; align-items:center; justify-content:center; color:#adb5bd; font-size:40px; }
-
-/* Badge */
 .le-badge { font-size:.7rem; font-weight:600; letter-spacing:.04em;
             padding:.3em .7em; border-radius:4px; }
-.le-badge-type { background:var(--le-primary); color:#fff; }
+.le-badge-type      { background:var(--le-primary); color:#fff; }
 .le-badge-available { background:#198754; color:#fff; }
 .le-badge-reserved  { background:#ffc107; color:#000; }
 .le-badge-sold      { background:#dc3545; color:#fff; }
-
-/* Stats satırı */
 .le-stats { display:flex; gap:16px; flex-wrap:wrap; font-size:.85rem; color:var(--le-muted); }
 .le-stats span { display:flex; align-items:center; gap:4px; }
-
-/* Hero */
 .le-hero { background:var(--le-primary); color:#fff; padding:64px 0 48px; }
 .le-hero h1 { font-size:2.4rem; font-weight:700; }
 .le-hero p  { color:rgba(255,255,255,.75); }
-
-/* Filtre çubuğu */
 .le-filter { background:#fff; border-radius:12px;
              box-shadow:0 2px 10px rgba(0,0,0,.07); padding:20px 24px; }
 .le-filter select, .le-filter input { border-radius:8px; }
-
-/* Detail – kapak */
-.le-cover { width:100%; max-height:480px; object-fit:cover; border-radius:0; }
-
-/* Galeri */
+.le-cover { width:100%; max-height:480px; object-fit:cover; }
 .le-gallery { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px; }
-.le-gallery img { width:100%; height:130px; object-fit:cover; border-radius:8px; cursor:pointer;
-                  transition:opacity .15s; }
+.le-gallery img { width:100%; height:130px; object-fit:cover; border-radius:8px;
+                  cursor:pointer; transition:opacity .15s; }
 .le-gallery img:hover { opacity:.85; }
-
-/* Modal galeri */
-#leModal img { max-height:80vh; object-fit:contain; }
-
-/* Video ve Harita */
 .le-ratio-16-9 { position:relative; padding-bottom:56.25%; height:0; overflow:hidden;
                  border-radius:12px; }
 .le-ratio-16-9 iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:0; }
-
-/* Ajan kartı */
 .le-agent { background:var(--le-light); border-radius:12px; padding:24px; }
-
-/* Fiyat */
 .le-price { font-size:2rem; font-weight:700; color:var(--le-accent); }
-
-/* Accent button */
 .btn-le { background:var(--le-accent); color:#fff; font-weight:600;
           border-radius:8px; padding:.55em 1.4em; }
 .btn-le:hover { background:#b8943e; color:#fff; }
-
-/* Sold overlay */
 .le-sold-overlay { position:relative; }
-.le-sold-overlay::after { content:"SATILDI"; position:absolute; top:50%; left:50%;
+.le-sold-overlay::after { content:"SOLD"; position:absolute; top:50%; left:50%;
     transform:translate(-50%,-50%) rotate(-20deg);
     font-size:1.8rem; font-weight:900; color:rgba(220,53,69,.85);
     border:4px solid rgba(220,53,69,.85); padding:4px 12px; pointer-events:none; }
@@ -85,28 +57,28 @@
 
 
 <!-- ══════════════════════════════════════════════════════════════════
-     LİSTELEME SAYFASI  /properties
+     LISTING PAGE  /properties
 ══════════════════════════════════════════════════════════════════ -->
-<template id="property_list" name="Gayrimenkul İlanları">
+<template id="property_list" name="Property Listings">
     <t t-call="website.layout">
-        <t t-set="title">Satılık Gayrimenkuller</t>
+        <t t-set="title">Properties for Sale</t>
 
         <!-- Hero -->
         <section class="le-hero">
             <div class="container">
-                <h1>Satılık Gayrimenkuller</h1>
-                <p class="lead mb-0">Size özel seçenekleri keşfedin</p>
+                <h1>Properties for Sale</h1>
+                <p class="lead mb-0">Find your perfect property</p>
             </div>
         </section>
 
-        <!-- Filtre -->
+        <!-- Filters -->
         <div class="container my-4">
             <form class="le-filter" method="get" action="/properties">
                 <div class="row g-3 align-items-end">
                     <div class="col-12 col-md-3">
-                        <label class="form-label fw-semibold small">Tür</label>
+                        <label class="form-label fw-semibold small">Type</label>
                         <select name="ptype" class="form-select">
-                            <option value="">Tümü</option>
+                            <option value="">All Types</option>
                             <t t-foreach="type_choices" t-as="tc">
                                 <option t-att-value="tc[0]"
                                         t-att-selected="tc[0] == current_type or None">
@@ -116,37 +88,37 @@
                         </select>
                     </div>
                     <div class="col-12 col-md-3">
-                        <label class="form-label fw-semibold small">Maks. Fiyat (₺)</label>
+                        <label class="form-label fw-semibold small">Max Price (USD)</label>
                         <input type="number" name="max_price" class="form-control"
-                               placeholder="örn. 5000000"
+                               placeholder="e.g. 500000"
                                t-att-value="max_price"/>
                     </div>
                     <div class="col-12 col-md-3">
-                        <label class="form-label fw-semibold small">Min. Alan (m²)</label>
+                        <label class="form-label fw-semibold small">Min Area (m²)</label>
                         <input type="number" name="min_area" class="form-control"
-                               placeholder="örn. 80"
+                               placeholder="e.g. 80"
                                t-att-value="min_area"/>
                     </div>
                     <div class="col-12 col-md-3">
-                        <button type="submit" class="btn btn-le w-100">Filtrele</button>
+                        <button type="submit" class="btn btn-le w-100">Search</button>
                     </div>
                 </div>
             </form>
         </div>
 
-        <!-- İlan Sayısı -->
+        <!-- Result count -->
         <div class="container mb-3">
             <small class="text-muted">
-                <t t-esc="len(properties)"/> ilan bulundu
+                <t t-esc="len(properties)"/> listing(s) found
             </small>
         </div>
 
-        <!-- Kartlar -->
+        <!-- Cards -->
         <div class="container mb-5">
             <t t-if="not properties">
                 <div class="text-center py-5 text-muted">
-                    <p class="fs-5">Bu kriterlere uygun ilan bulunamadı.</p>
-                    <a href="/properties" class="btn btn-outline-secondary">Filtreyi Temizle</a>
+                    <p class="fs-5">No properties found matching your criteria.</p>
+                    <a href="/properties" class="btn btn-outline-secondary">Clear Filters</a>
                 </div>
             </t>
             <div class="row g-4">
@@ -154,7 +126,6 @@
                     <div class="col-12 col-md-6 col-lg-4">
                         <a t-att-href="prop._get_detail_url()" class="text-decoration-none text-dark">
                             <div t-attf-class="le-card bg-white h-100 #{prop.state == 'sold' and 'le-sold-overlay' or ''}">
-                                <!-- Kapak Görseli -->
                                 <t t-if="prop.cover_image">
                                     <img t-attf-src="/web/image/estate.property/#{prop.id}/cover_image"
                                          class="le-card-img"
@@ -163,7 +134,6 @@
                                 <t t-else="">
                                     <div class="le-card-img-placeholder">🏠</div>
                                 </t>
-                                <!-- İçerik -->
                                 <div class="p-3">
                                     <div class="d-flex gap-2 mb-2 flex-wrap">
                                         <span class="le-badge le-badge-type">
@@ -186,17 +156,17 @@
                                             <span>📐 <t t-esc="'%.0f' % prop.area_m2"/> m²</span>
                                         </t>
                                         <t t-if="prop.bedrooms">
-                                            <span>🛏 <t t-esc="prop.bedrooms"/>+1</span>
+                                            <span>🛏 <t t-esc="prop.bedrooms"/> bed</span>
                                         </t>
                                         <t t-if="prop.bathrooms">
-                                            <span>🚿 <t t-esc="prop.bathrooms"/></span>
+                                            <span>🚿 <t t-esc="prop.bathrooms"/> bath</span>
                                         </t>
                                     </div>
                                     <div class="d-flex align-items-center justify-content-between">
                                         <span style="color:var(--le-accent);font-weight:700;font-size:1.1rem;">
                                             <t t-esc="prop._format_price()"/>
                                         </span>
-                                        <span class="btn btn-sm btn-le">Detaylar →</span>
+                                        <span class="btn btn-sm btn-le">View Details →</span>
                                     </div>
                                 </div>
                             </div>
@@ -210,13 +180,12 @@
 
 
 <!-- ══════════════════════════════════════════════════════════════════
-     DETAY SAYFASI  /property/ID-slug
+     DETAIL PAGE  /property/ID-slug
 ══════════════════════════════════════════════════════════════════ -->
-<template id="property_detail" name="Gayrimenkul Detay">
+<template id="property_detail" name="Property Detail">
     <t t-call="website.layout">
         <t t-set="title" t-value="prop.name"/>
 
-        <!-- Kapak -->
         <t t-if="prop.cover_image">
             <img t-attf-src="/web/image/estate.property/#{prop.id}/cover_image"
                  class="le-cover w-100"
@@ -226,10 +195,9 @@
         <div class="container my-5">
             <div class="row g-5">
 
-                <!-- Sol – ana bilgi -->
+                <!-- Left – main content -->
                 <div class="col-12 col-lg-8">
 
-                    <!-- Başlık ve Badges -->
                     <div class="d-flex flex-wrap gap-2 mb-2">
                         <span class="le-badge le-badge-type">
                             <t t-esc="prop._type_label()"/>
@@ -245,35 +213,31 @@
                         <p class="text-muted mb-3">📍 <t t-esc="prop.address"/></p>
                     </t>
 
-                    <!-- Fiyat -->
                     <div class="le-price mb-4">
                         <t t-esc="prop._format_price()"/>
                     </div>
 
-                    <!-- İstatistikler -->
                     <div class="le-stats fs-6 mb-4 pb-4 border-bottom">
                         <t t-if="prop.area_m2">
                             <span>📐 <strong><t t-esc="'%.0f' % prop.area_m2"/></strong> m²</span>
                         </t>
                         <t t-if="prop.bedrooms">
-                            <span>🛏 <strong><t t-esc="prop.bedrooms"/>+1</strong> oda</span>
+                            <span>🛏 <strong><t t-esc="prop.bedrooms"/></strong> bedrooms</span>
                         </t>
                         <t t-if="prop.bathrooms">
-                            <span>🚿 <strong><t t-esc="prop.bathrooms"/></strong> banyo</span>
+                            <span>🚿 <strong><t t-esc="prop.bathrooms"/></strong> bathrooms</span>
                         </t>
                     </div>
 
-                    <!-- Açıklama -->
                     <t t-if="prop.description">
-                        <h5 class="fw-semibold mb-3">Açıklama</h5>
+                        <h5 class="fw-semibold mb-3">Description</h5>
                         <div class="mb-5">
                             <t t-out="prop.description"/>
                         </div>
                     </t>
 
-                    <!-- Galeri -->
                     <t t-if="prop.image_ids">
-                        <h5 class="fw-semibold mb-3">Fotoğraflar</h5>
+                        <h5 class="fw-semibold mb-3">Photos</h5>
                         <div class="le-gallery mb-5">
                             <t t-foreach="prop.image_ids" t-as="img">
                                 <img t-attf-src="/web/image/estate.property.image/#{img.id}/image"
@@ -285,9 +249,8 @@
                         </div>
                     </t>
 
-                    <!-- Harita -->
                     <t t-if="map_embed">
-                        <h5 class="fw-semibold mb-3">Konum</h5>
+                        <h5 class="fw-semibold mb-3">Location</h5>
                         <div class="le-ratio-16-9 mb-5">
                             <iframe t-att-src="map_embed"
                                     loading="lazy"
@@ -295,7 +258,6 @@
                         </div>
                     </t>
 
-                    <!-- Video -->
                     <t t-if="video_embed">
                         <h5 class="fw-semibold mb-3">Video</h5>
                         <div class="le-ratio-16-9 mb-5">
@@ -307,12 +269,12 @@
 
                 </div>
 
-                <!-- Sağ – Ajan kartı -->
+                <!-- Right – agent card -->
                 <div class="col-12 col-lg-4">
                     <div class="sticky-top" style="top:90px">
                         <div class="le-agent">
                             <h6 class="fw-bold mb-3" style="color:var(--le-primary)">
-                                Bilgi İçin İletişime Geçin
+                                Contact Us
                             </h6>
                             <t t-if="prop.agent_id">
                                 <div class="d-flex align-items-center gap-3 mb-3">
@@ -324,7 +286,7 @@
                                         <div class="fw-semibold">
                                             <t t-esc="prop.agent_id.name"/>
                                         </div>
-                                        <small class="text-muted">Ajan</small>
+                                        <small class="text-muted">Agent</small>
                                     </div>
                                 </div>
                                 <t t-if="prop.agent_id.phone">
@@ -341,11 +303,11 @@
                                 </t>
                             </t>
                             <t t-else="">
-                                <p class="text-muted small">Ajan bilgisi girilmemiş.</p>
+                                <p class="text-muted small">No agent assigned.</p>
                             </t>
                             <hr/>
                             <a href="/properties" class="btn btn-outline-secondary w-100 mt-1">
-                                ← Tüm İlanlara Dön
+                                ← Back to Listings
                             </a>
                         </div>
                     </div>
@@ -354,7 +316,7 @@
             </div>
         </div>
 
-        <!-- Galeri Lightbox Modal -->
+        <!-- Gallery Lightbox Modal -->
         <div id="leModal" class="modal fade" tabindex="-1">
             <div class="modal-dialog modal-xl modal-dialog-centered">
                 <div class="modal-content bg-dark">
