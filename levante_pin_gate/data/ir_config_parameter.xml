@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Korunacak website domaini -->
+        <record id="param_levante_pin_domain" model="ir.config_parameter">
+            <field name="key">levante_pin.domain</field>
+            <field name="value">levanteproperty.com</field>
+        </record>
+        <!-- 4 haneli ortak kod (kurulumdan sonra degistirin) -->
+        <record id="param_levante_pin_code" model="ir.config_parameter">
+            <field name="key">levante_pin.code</field>
+            <field name="value">1234</field>
+        </record>
+    </data>
+</odoo>
