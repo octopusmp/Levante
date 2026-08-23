@@ -35,7 +35,7 @@ class EstateProperty(models.Model):
         required=True,
     )
     price = fields.Float("Price (USD)", required=True, digits=(15, 0))
-    area_m2 = fields.Float("Area (m²)", digits=(7, 1))
+    area_m2 = fields.Float("Area (m2)", digits=(7, 1))
     bedrooms = fields.Integer("Bedrooms")
     bathrooms = fields.Integer("Bathrooms")
     address = fields.Char("Address / Area")
@@ -82,11 +82,18 @@ class EstateProperty(models.Model):
             return None
         return "https://maps.google.com/maps?q=%s&output=embed&z=15" % quote(self.address)
 
-    _TYPE_LABELS  = {"apartment": "Apartment", "villa": "Villa", "land": "Land",
-                     "commercial": "Commercial", "office": "Office"}
-    _STATE_CLASSES = {"available": ("For Sale", "success"),
-                      "reserved":  ("Reserved",  "warning"),
-                      "sold":      ("Sold",       "danger")}
+    _TYPE_LABELS = {
+        "apartment": "Apartment",
+        "villa": "Villa",
+        "land": "Land",
+        "commercial": "Commercial",
+        "office": "Office",
+    }
+    _STATE_CLASSES = {
+        "available": ("For Sale", "success"),
+        "reserved":  ("Reserved",  "warning"),
+        "sold":      ("Sold",       "danger"),
+    }
 
     def _type_label(self):
         return self._TYPE_LABELS.get(self.property_type, self.property_type)
