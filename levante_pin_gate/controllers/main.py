@@ -47,7 +47,6 @@ PAGE = """<!DOCTYPE html>
 
 
 def _safe_redirect(redirect):
-    """Sadece site ici yollara izin ver (acik yonlendirme onlemi)."""
     if not redirect or not redirect.startswith("/") or redirect.startswith("//"):
         return "/"
     return redirect
@@ -68,7 +67,9 @@ class LevantePinGate(http.Controller):
 
     @http.route("/pin", type="http", auth="public", sitemap=False)
     def pin_form(self, redirect=None, **kw):
-        if request.session.get("levante_pin_ok"):
+        # Cookie kontrolu: tarayici kapaninca cookie silindigi icin
+        # yeniden acildiginda bu False gelir ve form gosterilir
+        if request.httprequest.cookies.get("levante_pin_ok") == "1":
             return request.redirect(_safe_redirect(redirect))
         return _render(redirect)
 
@@ -81,15 +82,24 @@ class LevantePinGate(http.Controller):
         fails = request.session.get("levante_pin_fails", 0)
         last = request.session.get("levante_pin_last", 0.0)
 
-        # Basit hiz siniri: 5 hatali denemeden sonra 60 sn bekleme
+        # 5 hatali denemeden sonra 60 sn bekleme
         if fails >= 5 and (now - last) < 60:
             wait = int(60 - (now - last))
             return _render(redirect, "Cok fazla hatali deneme. %s sn bekleyin." % wait)
 
         if real and code and code.strip() == real:
-            request.session["levante_pin_ok"] = True
             request.session["levante_pin_fails"] = 0
-            return request.redirect(_safe_redirect(redirect))
+            # Session cookie: max_age/expires YOK
+            # Tarayici kapaninca otomatik silinen cookie
+            response = request.redirect(_safe_redirect(redirect))
+            response.set_cookie(
+                "levante_pin_ok",
+                "1",
+                httponly=True,
+                samesite="Lax",
+                # max_age vermiyoruz — session cookie olsun
+            )
+            return response
 
         request.session["levante_pin_fails"] = fails + 1
         request.session["levante_pin_last"] = now
