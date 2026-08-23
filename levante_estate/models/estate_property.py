@@ -6,64 +6,64 @@ from odoo import api, fields, models
 
 class EstateProperty(models.Model):
     _name = "estate.property"
-    _description = "Gayrimenkul İlanı"
+    _description = "Property Listing"
     _order = "sequence, id desc"
 
-    # ── Temel Bilgiler ────────────────────────────────────────────────────
-    name = fields.Char("Başlık", required=True)
+    # ── Core Fields ───────────────────────────────────────────────────
+    name = fields.Char("Title", required=True)
     sequence = fields.Integer(default=10)
-    description = fields.Html("Açıklama")
+    description = fields.Html("Description")
     property_type = fields.Selection(
         [
-            ("apartment", "Daire"),
-            ("villa", "Villa / Müstakil"),
-            ("land", "Arsa"),
-            ("commercial", "Ticari"),
-            ("office", "Ofis"),
+            ("apartment", "Apartment"),
+            ("villa", "Villa / Detached"),
+            ("land", "Land"),
+            ("commercial", "Commercial"),
+            ("office", "Office"),
         ],
-        string="Tür",
+        string="Type",
         required=True,
         default="apartment",
     )
     state = fields.Selection(
         [
-            ("available", "Satışta"),
-            ("reserved", "Rezerve"),
-            ("sold", "Satıldı"),
+            ("available", "For Sale"),
+            ("reserved", "Reserved"),
+            ("sold", "Sold"),
         ],
-        string="Durum",
+        string="Status",
         default="available",
         required=True,
     )
 
-    # ── Fiyat ve Özellikler ───────────────────────────────────────────────
-    price = fields.Float("Fiyat (₺)", required=True, digits=(15, 0))
-    area_m2 = fields.Float("Alan (m²)", digits=(7, 1))
-    bedrooms = fields.Integer("Yatak Odası")
-    bathrooms = fields.Integer("Banyo")
+    # ── Price & Features ──────────────────────────────────────────────
+    price = fields.Float("Price (USD)", required=True, digits=(15, 0))
+    area_m2 = fields.Float("Area (m²)", digits=(7, 1))
+    bedrooms = fields.Integer("Bedrooms")
+    bathrooms = fields.Integer("Bathrooms")
 
-    # ── Konum ve Medya ────────────────────────────────────────────────────
-    address = fields.Char("Adres / Bölge")
+    # ── Location & Media ─────────────────────────────────────────────
+    address = fields.Char("Address / Area")
     video_url = fields.Char("Video URL (YouTube / Vimeo)")
     cover_image = fields.Image(
-        "Kapak Fotoğrafı", max_width=1200, max_height=800
+        "Cover Photo", max_width=1200, max_height=800
     )
     image_ids = fields.One2many(
-        "estate.property.image", "property_id", string="Galeri Fotoğrafları"
+        "estate.property.image", "property_id", string="Gallery"
     )
 
-    # ── İletişim ve Yayın ─────────────────────────────────────────────────
-    agent_id = fields.Many2one("res.partner", string="Sorumlu Ajan")
+    # ── Contact & Publishing ──────────────────────────────────────────
+    agent_id = fields.Many2one("res.partner", string="Agent")
     website_id = fields.Many2one(
         "website",
         string="Website",
         required=True,
         default=lambda self: self._default_website(),
     )
-    website_published = fields.Boolean("Sitede Yayında", default=True)
+    website_published = fields.Boolean("Published on Site", default=True)
     active = fields.Boolean(default=True)
 
-    # ── Yardımcı Metodlar ─────────────────────────────────────────────────
+    # ── Helpers ───────────────────────────────────────────────────────
     def _default_website(self):
         ws = self.env["website"].search(
             [("domain", "ilike", "levanteproperty")], limit=1
@@ -72,14 +72,14 @@ class EstateProperty(models.Model):
 
     def _get_url_slug(self):
         slug = re.sub(r"[^a-z0-9]+", "-", (self.name or "").lower()).strip("-")
-        return slug or "ilan"
+        return slug or "property"
 
     def _get_detail_url(self):
         return "/property/%d-%s" % (self.id, self._get_url_slug())
 
     def _format_price(self):
-        """1500000 → 1.500.000 ₺"""
-        return "{:,.0f} ₺".format(self.price).replace(",", ".")
+        """1500000 → $ 1,500,000"""
+        return "$ {:,.0f}".format(self.price)
 
     def _get_video_embed_url(self):
         url = self.video_url or ""
@@ -102,18 +102,17 @@ class EstateProperty(models.Model):
             self.address
         )
 
-    # Tür ve durum etiketleri için yardımcılar
     _TYPE_LABELS = {
-        "apartment": "Daire",
+        "apartment": "Apartment",
         "villa": "Villa",
-        "land": "Arsa",
-        "commercial": "Ticari",
-        "office": "Ofis",
+        "land": "Land",
+        "commercial": "Commercial",
+        "office": "Office",
     }
     _STATE_CLASSES = {
-        "available": ("Satışta", "success"),
-        "reserved": ("Rezerve", "warning"),
-        "sold": ("Satıldı", "danger"),
+        "available": ("For Sale", "success"),
+        "reserved": ("Reserved", "warning"),
+        "sold": ("Sold", "danger"),
     }
 
     def _type_label(self):
