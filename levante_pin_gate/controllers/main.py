@@ -45,6 +45,19 @@ PAGE = """<!DOCTYPE html>
 </body>
 </html>"""
 
+# PIN dogrulandi: JS localStorage/sessionStorage'a yaz ve hedef sayfaya git
+_GRANT_PAGE = """<!DOCTYPE html>
+<html><head><meta charset="utf-8"/>
+<script>
+(function(){{
+  sessionStorage.setItem('lpg_s','1');
+  localStorage.setItem('lpg_ok','1');
+  localStorage.setItem('lpg_hb',Date.now());
+  window.location.replace('{redirect}');
+}})();
+</script>
+</head><body></body></html>"""
+
 
 def _safe_redirect(redirect):
     if not redirect or not redirect.startswith("/") or redirect.startswith("//"):
@@ -67,8 +80,6 @@ class LevantePinGate(http.Controller):
 
     @http.route("/pin", type="http", auth="public", sitemap=False)
     def pin_form(self, redirect=None, **kw):
-        # Cookie kontrolu: tarayici kapaninca cookie silindigi icin
-        # yeniden acildiginda bu False gelir ve form gosterilir
         if request.httprequest.cookies.get("levante_pin_ok") == "1":
             return request.redirect(_safe_redirect(redirect))
         return _render(redirect)
@@ -82,25 +93,37 @@ class LevantePinGate(http.Controller):
         fails = request.session.get("levante_pin_fails", 0)
         last = request.session.get("levante_pin_last", 0.0)
 
-        # 5 hatali denemeden sonra 60 sn bekleme
         if fails >= 5 and (now - last) < 60:
             wait = int(60 - (now - last))
             return _render(redirect, "Cok fazla hatali deneme. %s sn bekleyin." % wait)
 
         if real and code and code.strip() == real:
             request.session["levante_pin_fails"] = 0
-            # Session cookie: max_age/expires YOK
-            # Tarayici kapaninca otomatik silinen cookie
-            response = request.redirect(_safe_redirect(redirect))
+            safe = _safe_redirect(redirect)
+            # JS ara sayfasi: localStorage + sessionStorage'a yaz, sonra hedefine git
+            html = _GRANT_PAGE.format(redirect=safe.replace("'", "\\'"))
+            response = request.make_response(
+                html, headers=[("Content-Type", "text/html; charset=utf-8")]
+            )
+            # Sunucu tarafli cookie (7 gun): JS onu /pin/clear ile temizler
             response.set_cookie(
-                "levante_pin_ok",
-                "1",
+                "levante_pin_ok", "1",
+                max_age=86400 * 7,
                 httponly=True,
                 samesite="Lax",
-                # max_age vermiyoruz — session cookie olsun
             )
             return response
 
         request.session["levante_pin_fails"] = fails + 1
         request.session["levante_pin_last"] = now
         return _render(redirect, "Hatali kod. Tekrar deneyin.")
+
+    @http.route("/pin/clear", type="http", auth="public", methods=["GET"],
+                csrf=False, sitemap=False)
+    def pin_clear(self, **kw):
+        """JS tarafindan cagrilir: sunucu cookie'yi siler."""
+        response = request.make_response(
+            "ok", headers=[("Content-Type", "text/plain")]
+        )
+        response.delete_cookie("levante_pin_ok")
+        return response
