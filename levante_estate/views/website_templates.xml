@@ -13,39 +13,63 @@
     --le-light:   #f8f5f0;
     --le-muted:   #6c757d;
 }
+/* Card */
 .le-card { border:none; border-radius:12px; overflow:hidden;
            box-shadow:0 2px 12px rgba(0,0,0,.08); transition:transform .2s,box-shadow .2s; }
 .le-card:hover { transform:translateY(-4px); box-shadow:0 8px 28px rgba(0,0,0,.14); }
 .le-card-img { width:100%; height:210px; object-fit:cover; }
 .le-card-img-placeholder { width:100%; height:210px; background:#e9ecef;
     display:flex; align-items:center; justify-content:center; color:#adb5bd; font-size:40px; }
-.le-badge { font-size:.7rem; font-weight:600; letter-spacing:.04em;
-            padding:.3em .7em; border-radius:4px; }
+/* Badge */
+.le-badge { font-size:.7rem; font-weight:600; letter-spacing:.04em; padding:.3em .7em; border-radius:4px; }
 .le-badge-type      { background:var(--le-primary); color:#fff; }
 .le-badge-available { background:#198754; color:#fff; }
 .le-badge-reserved  { background:#ffc107; color:#000; }
 .le-badge-sold      { background:#dc3545; color:#fff; }
+/* Stats */
 .le-stats { display:flex; gap:16px; flex-wrap:wrap; font-size:.85rem; color:var(--le-muted); }
 .le-stats span { display:flex; align-items:center; gap:4px; }
+/* Hero */
 .le-hero { background:var(--le-primary); color:#fff; padding:64px 0 48px; }
 .le-hero h1 { font-size:2.4rem; font-weight:700; }
 .le-hero p  { color:rgba(255,255,255,.75); }
-.le-filter { background:#fff; border-radius:12px;
-             box-shadow:0 2px 10px rgba(0,0,0,.07); padding:20px 24px; }
+/* Filter */
+.le-filter { background:#fff; border-radius:12px; box-shadow:0 2px 10px rgba(0,0,0,.07); padding:20px 24px; }
 .le-filter select, .le-filter input { border-radius:8px; }
+/* Cover */
 .le-cover { width:100%; max-height:480px; object-fit:cover; }
-.le-gallery { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:8px; }
-.le-gallery img { width:100%; height:130px; object-fit:cover; border-radius:8px;
-                  cursor:pointer; transition:opacity .15s; }
-.le-gallery img:hover { opacity:.85; }
-.le-ratio-16-9 { position:relative; padding-bottom:56.25%; height:0; overflow:hidden;
-                 border-radius:12px; }
+/* ── GALLERY ─────────────────────────────────────────────────── */
+.le-gall-wrap { border-radius:12px; overflow:hidden; background:#111; }
+.le-gall-main { position:relative; background:#111; }
+.le-gall-main img { width:100%; height:420px; object-fit:contain; display:block; }
+.le-gall-arrow { position:absolute; top:50%; transform:translateY(-50%);
+    background:rgba(0,0,0,.55); color:#fff; border:none; border-radius:50%;
+    width:44px; height:44px; font-size:22px; line-height:1; cursor:pointer;
+    z-index:10; display:flex; align-items:center; justify-content:center;
+    transition:background .15s; }
+.le-gall-arrow:hover { background:rgba(0,0,0,.85); }
+.le-gall-prev { left:12px; }
+.le-gall-next { right:12px; }
+.le-thumbs { display:flex; gap:6px; overflow-x:auto; padding:8px;
+    background:#1a1a1a; scrollbar-width:thin; scrollbar-color:#444 #1a1a1a; }
+.le-thumbs::-webkit-scrollbar { height:4px; }
+.le-thumbs::-webkit-scrollbar-thumb { background:#555; border-radius:2px; }
+.le-thumb { width:88px; height:60px; object-fit:cover; border-radius:5px;
+    cursor:pointer; flex-shrink:0; opacity:.5; transition:opacity .15s, border-color .15s;
+    border:2px solid transparent; }
+.le-thumb:hover { opacity:.8; }
+.le-thumb.le-active { opacity:1; border-color:var(--le-accent); }
+/* ── Map / Video ─────────────────────────────────────────────── */
+.le-ratio-16-9 { position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:12px; }
 .le-ratio-16-9 iframe { position:absolute; top:0; left:0; width:100%; height:100%; border:0; }
+/* Agent */
 .le-agent { background:var(--le-light); border-radius:12px; padding:24px; }
+/* Price */
 .le-price { font-size:2rem; font-weight:700; color:var(--le-accent); }
-.btn-le { background:var(--le-accent); color:#fff; font-weight:600;
-          border-radius:8px; padding:.55em 1.4em; }
+/* Buttons */
+.btn-le { background:var(--le-accent); color:#fff; font-weight:600; border-radius:8px; padding:.55em 1.4em; }
 .btn-le:hover { background:#b8943e; color:#fff; }
+/* Sold overlay */
 .le-sold-overlay { position:relative; }
 .le-sold-overlay::after { content:"SOLD"; position:absolute; top:50%; left:50%;
     transform:translate(-50%,-50%) rotate(-20deg);
@@ -63,7 +87,6 @@
     <t t-call="website.layout">
         <t t-set="title">Properties for Sale</t>
 
-        <!-- Hero -->
         <section class="le-hero">
             <div class="container">
                 <h1>Properties for Sale</h1>
@@ -71,7 +94,6 @@
             </div>
         </section>
 
-        <!-- Filters -->
         <div class="container my-4">
             <form class="le-filter" method="get" action="/properties">
                 <div class="row g-3 align-items-end">
@@ -90,14 +112,12 @@
                     <div class="col-12 col-md-3">
                         <label class="form-label fw-semibold small">Max Price (USD)</label>
                         <input type="number" name="max_price" class="form-control"
-                               placeholder="e.g. 500000"
-                               t-att-value="max_price"/>
+                               placeholder="e.g. 500000" t-att-value="max_price"/>
                     </div>
                     <div class="col-12 col-md-3">
                         <label class="form-label fw-semibold small">Min Area (m²)</label>
                         <input type="number" name="min_area" class="form-control"
-                               placeholder="e.g. 80"
-                               t-att-value="min_area"/>
+                               placeholder="e.g. 80" t-att-value="min_area"/>
                     </div>
                     <div class="col-12 col-md-3">
                         <button type="submit" class="btn btn-le w-100">Search</button>
@@ -106,14 +126,10 @@
             </form>
         </div>
 
-        <!-- Result count -->
         <div class="container mb-3">
-            <small class="text-muted">
-                <t t-esc="len(properties)"/> listing(s) found
-            </small>
+            <small class="text-muted"><t t-esc="len(properties)"/> listing(s) found</small>
         </div>
 
-        <!-- Cards -->
         <div class="container mb-5">
             <t t-if="not properties">
                 <div class="text-center py-5 text-muted">
@@ -128,28 +144,19 @@
                             <div t-attf-class="le-card bg-white h-100 #{prop.state == 'sold' and 'le-sold-overlay' or ''}">
                                 <t t-if="prop.cover_image">
                                     <img t-attf-src="/web/image/estate.property/#{prop.id}/cover_image"
-                                         class="le-card-img"
-                                         t-att-alt="prop.name"/>
+                                         class="le-card-img" t-att-alt="prop.name"/>
                                 </t>
                                 <t t-else="">
                                     <div class="le-card-img-placeholder">🏠</div>
                                 </t>
                                 <div class="p-3">
                                     <div class="d-flex gap-2 mb-2 flex-wrap">
-                                        <span class="le-badge le-badge-type">
-                                            <t t-esc="prop._type_label()"/>
-                                        </span>
-                                        <span t-attf-class="le-badge le-badge-#{prop.state}">
-                                            <t t-esc="prop._state_label()"/>
-                                        </span>
+                                        <span class="le-badge le-badge-type"><t t-esc="prop._type_label()"/></span>
+                                        <span t-attf-class="le-badge le-badge-#{prop.state}"><t t-esc="prop._state_label()"/></span>
                                     </div>
-                                    <h6 class="fw-semibold mb-1 lh-sm">
-                                        <t t-esc="prop.name"/>
-                                    </h6>
+                                    <h6 class="fw-semibold mb-1 lh-sm"><t t-esc="prop.name"/></h6>
                                     <t t-if="prop.address">
-                                        <small class="text-muted d-block mb-2">
-                                            📍 <t t-esc="prop.address"/>
-                                        </small>
+                                        <small class="text-muted d-block mb-2">📍 <t t-esc="prop.address"/></small>
                                     </t>
                                     <div class="le-stats mb-3">
                                         <t t-if="prop.area_m2">
@@ -188,8 +195,7 @@
 
         <t t-if="prop.cover_image">
             <img t-attf-src="/web/image/estate.property/#{prop.id}/cover_image"
-                 class="le-cover w-100"
-                 t-att-alt="prop.name"/>
+                 class="le-cover w-100" t-att-alt="prop.name"/>
         </t>
 
         <div class="container my-5">
@@ -199,23 +205,15 @@
                 <div class="col-12 col-lg-8">
 
                     <div class="d-flex flex-wrap gap-2 mb-2">
-                        <span class="le-badge le-badge-type">
-                            <t t-esc="prop._type_label()"/>
-                        </span>
-                        <span t-attf-class="le-badge le-badge-#{prop.state}">
-                            <t t-esc="prop._state_label()"/>
-                        </span>
+                        <span class="le-badge le-badge-type"><t t-esc="prop._type_label()"/></span>
+                        <span t-attf-class="le-badge le-badge-#{prop.state}"><t t-esc="prop._state_label()"/></span>
                     </div>
-                    <h1 class="fw-bold mb-1" style="color:var(--le-primary)">
-                        <t t-esc="prop.name"/>
-                    </h1>
+                    <h1 class="fw-bold mb-1" style="color:var(--le-primary)"><t t-esc="prop.name"/></h1>
                     <t t-if="prop.address">
                         <p class="text-muted mb-3">📍 <t t-esc="prop.address"/></p>
                     </t>
 
-                    <div class="le-price mb-4">
-                        <t t-esc="prop._format_price()"/>
-                    </div>
+                    <div class="le-price mb-4"><t t-esc="prop._format_price()"/></div>
 
                     <div class="le-stats fs-6 mb-4 pb-4 border-bottom">
                         <t t-if="prop.area_m2">
@@ -231,30 +229,85 @@
 
                     <t t-if="prop.description">
                         <h5 class="fw-semibold mb-3">Description</h5>
-                        <div class="mb-5">
-                            <t t-out="prop.description"/>
-                        </div>
+                        <div class="mb-5"><t t-out="prop.description"/></div>
                     </t>
 
-                    <t t-if="prop.image_ids">
+                    <!-- ── GALLERY ──────────────────────────────────────── -->
+                    <t t-if="prop.cover_image or prop.image_ids">
                         <h5 class="fw-semibold mb-3">Photos</h5>
-                        <div class="le-gallery mb-5">
-                            <t t-foreach="prop.image_ids" t-as="img">
-                                <img t-attf-src="/web/image/estate.property.image/#{img.id}/image"
-                                     t-att-alt="img.caption or prop.name"
-                                     data-bs-toggle="modal"
-                                     data-bs-target="#leModal"
-                                     t-attf-data-src="/web/image/estate.property.image/#{img.id}/image"/>
-                            </t>
+                        <div class="le-gall-wrap mb-5">
+                            <!-- Main viewer -->
+                            <div class="le-gall-main">
+                                <img id="leGallMain" src="" alt="Property photo"/>
+                                <button class="le-gall-arrow le-gall-prev" id="lePrev"
+                                        aria-label="Previous">&#8249;</button>
+                                <button class="le-gall-arrow le-gall-next" id="leNext"
+                                        aria-label="Next">&#8250;</button>
+                            </div>
+                            <!-- Thumbnails -->
+                            <div class="le-thumbs" id="leThumbs">
+                                <t t-if="prop.cover_image">
+                                    <img class="le-thumb"
+                                         t-attf-src="/web/image/estate.property/#{prop.id}/cover_image"
+                                         t-attf-data-full="/web/image/estate.property/#{prop.id}/cover_image"
+                                         t-att-alt="prop.name"/>
+                                </t>
+                                <t t-foreach="prop.image_ids" t-as="img">
+                                    <img class="le-thumb"
+                                         t-attf-src="/web/image/estate.property.image/#{img.id}/image"
+                                         t-attf-data-full="/web/image/estate.property.image/#{img.id}/image"
+                                         t-att-alt="img.caption or prop.name"/>
+                                </t>
+                            </div>
                         </div>
+
+                        <script>//<![CDATA[
+(function(){
+    var thumbs  = document.querySelectorAll('.le-thumb');
+    var main    = document.getElementById('leGallMain');
+    var prev    = document.getElementById('lePrev');
+    var next    = document.getElementById('leNext');
+    var thumbWr = document.getElementById('leThumbs');
+    if(!thumbs.length || !main) return;
+    var cur = 0;
+
+    function show(idx){
+        cur = ((idx % thumbs.length) + thumbs.length) % thumbs.length;
+        main.src = thumbs[cur].getAttribute('data-full');
+        thumbs.forEach(function(t,i){ t.classList.toggle('le-active', i === cur); });
+        thumbs[cur].scrollIntoView({inline:'nearest', behavior:'smooth', block:'nearest'});
+    }
+
+    thumbs.forEach(function(t,i){
+        t.addEventListener('click', function(){ show(i); });
+    });
+
+    if(prev) prev.addEventListener('click', function(){ show(cur - 1); });
+    if(next) next.addEventListener('click', function(){ show(cur + 1); });
+
+    /* Keyboard navigation */
+    document.addEventListener('keydown', function(e){
+        if(e.key === 'ArrowLeft')  show(cur - 1);
+        if(e.key === 'ArrowRight') show(cur + 1);
+    });
+
+    /* Hide arrows and thumb strip when only 1 image */
+    if(thumbs.length <= 1){
+        if(prev) prev.style.display = 'none';
+        if(next) next.style.display = 'none';
+        if(thumbWr) thumbWr.style.display = 'none';
+    }
+
+    show(0);
+})();
+                        //]]></script>
                     </t>
+                    <!-- ── /GALLERY ─────────────────────────────────────── -->
 
                     <t t-if="map_embed">
                         <h5 class="fw-semibold mb-3">Location</h5>
                         <div class="le-ratio-16-9 mb-5">
-                            <iframe t-att-src="map_embed"
-                                    loading="lazy"
-                                    allowfullscreen="allowfullscreen"/>
+                            <iframe t-att-src="map_embed" loading="lazy" allowfullscreen="allowfullscreen"/>
                         </div>
                     </t>
 
@@ -273,25 +326,18 @@
                 <div class="col-12 col-lg-4">
                     <div class="sticky-top" style="top:90px">
                         <div class="le-agent">
-                            <h6 class="fw-bold mb-3" style="color:var(--le-primary)">
-                                Contact Us
-                            </h6>
+                            <h6 class="fw-bold mb-3" style="color:var(--le-primary)">Contact Us</h6>
                             <t t-if="prop.agent_id">
                                 <div class="d-flex align-items-center gap-3 mb-3">
                                     <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
-                                         style="width:48px;height:48px;font-size:1.3rem;flex-shrink:0">
-                                        👤
-                                    </div>
+                                         style="width:48px;height:48px;font-size:1.3rem;flex-shrink:0">👤</div>
                                     <div>
-                                        <div class="fw-semibold">
-                                            <t t-esc="prop.agent_id.name"/>
-                                        </div>
+                                        <div class="fw-semibold"><t t-esc="prop.agent_id.name"/></div>
                                         <small class="text-muted">Agent</small>
                                     </div>
                                 </div>
                                 <t t-if="prop.agent_id.phone">
-                                    <a t-attf-href="tel:#{prop.agent_id.phone}"
-                                       class="btn btn-le w-100 mb-2">
+                                    <a t-attf-href="tel:#{prop.agent_id.phone}" class="btn btn-le w-100 mb-2">
                                         📞 <t t-esc="prop.agent_id.phone"/>
                                     </a>
                                 </t>
@@ -307,7 +353,7 @@
                             </t>
                             <hr/>
                             <a href="/properties" class="btn btn-outline-secondary w-100 mt-1">
-                                ← Back to Listings
+                                &#8592; Back to Listings
                             </a>
                         </div>
                     </div>
@@ -315,34 +361,6 @@
 
             </div>
         </div>
-
-        <!-- Gallery Lightbox Modal -->
-        <div id="leModal" class="modal fade" tabindex="-1">
-            <div class="modal-dialog modal-xl modal-dialog-centered">
-                <div class="modal-content bg-dark">
-                    <div class="modal-header border-0 pb-0">
-                        <button type="button" class="btn-close btn-close-white"
-                                data-bs-dismiss="modal"/>
-                    </div>
-                    <div class="modal-body text-center p-2">
-                        <img id="leModalImg" src="" class="img-fluid rounded"
-                             style="max-height:80vh;object-fit:contain"/>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <script>//<![CDATA[
-        (function(){
-            var modal = document.getElementById('leModal');
-            if(!modal) return;
-            modal.addEventListener('show.bs.modal', function(e){
-                var src = e.relatedTarget && e.relatedTarget.getAttribute('data-src');
-                if(src) document.getElementById('leModalImg').src = src;
-            });
-        })();
-        //]]></script>
-
     </t>
 </template>
 
