@@ -14,8 +14,6 @@ WHITELIST_PREFIXES = (
     "/favicon.ico",
 )
 
-# Tarayici kapatilip bu sure (ms) icinde acilirsa PIN sorma
-# 120000 = 2 dakika. Dilersen degistirebilirsin.
 _GRACE_MS = 120000
 
 _PIN_SCRIPT = (
@@ -46,29 +44,49 @@ class IrHttp(models.AbstractModel):
 
     @classmethod
     def _dispatch(cls, endpoint):
+        # 1. PIN kontrolu
         if cls._levante_pin_should_block():
             target = request.httprequest.full_path or "/"
             if target.endswith("?"):
                 target = target[:-1]
             return request.redirect("/pin?redirect=%s" % target)
+
+        # 2. Odoo 19 bug workaround:
+        #    Ana sayfa (/) cache'den servis edilirken bytes/string
+        #    uyumsuzlugu nedeniyle 500 veriyor.
+        #    Cozum: / adresini /properties'e yonlendir.
+        if cls._levante_is_protected_host():
+            path = request.httprequest.path
+            if path == "/" or path == "":
+                return request.redirect("/properties", code=302)
+
         response = super()._dispatch(endpoint)
         cls._levante_inject_js(response)
         return response
 
     @classmethod
-    def _levante_inject_js(cls, response):
-        """Korumali domain'in HTML yanitlerina JS nabiz kodunu ekle."""
+    def _levante_is_protected_host(cls):
         try:
-            if "text/html" not in response.headers.get("Content-Type", ""):
-                return
             icp = request.env["ir.config_parameter"].sudo()
             domain = (icp.get_param("levante_pin.domain") or "").strip()
             if not domain:
-                return
+                return False
             host = (request.httprequest.host or "").split(":")[0].lower()
-            if domain.lower() not in host:
+            return domain.lower() in host
+        except Exception:
+            return False
+
+    @classmethod
+    def _levante_inject_js(cls, response):
+        """Korumali domain HTML yanitlerina JS nabiz kodu ekle."""
+        try:
+            if "text/html" not in response.headers.get("Content-Type", ""):
+                return
+            if not cls._levante_is_protected_host():
                 return
             data = response.get_data()
+            if isinstance(data, str):
+                data = data.encode("utf-8")
             if b"</body>" in data:
                 data = data.replace(b"</body>", _PIN_SCRIPT + b"</body>", 1)
             elif b"</html>" in data:
@@ -84,7 +102,6 @@ class IrHttp(models.AbstractModel):
         try:
             if not request or not getattr(request, "session", None):
                 return False
-            # Sunucu tarafli cookie kontrolu (ilk kalkan)
             if request.httprequest.cookies.get("levante_pin_ok") == "1":
                 return False
             if request.session.uid:
